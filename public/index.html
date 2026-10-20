@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MRCARS Ltd · Cars in stock, Kigali</title>
+  <meta name="description" content="Cars in stock at MRCARS Ltd, Kigali. See photos, prices and mileage, then ask us on WhatsApp or call +250 787 615 702.">
+  <meta name="theme-color" content="#14181f">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MRCARS Ltd · Cars in stock">
+  <meta property="og:description" content="Browse the cars in our Kigali showroom. Call or WhatsApp +250 787 615 702.">
+  <meta property="og:image" content="/brand/icon-512.png">
+  <link rel="icon" href="/brand/icon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/brand/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#grid">Skip to cars</a>
+
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="/" aria-label="MRCARS Ltd home">
+        <img src="/brand/mark.png" alt="" class="brand-mark" width="38" height="38">
+        <span class="brand-text">
+          <span class="brand-name js-company">MRCARS Ltd</span>
+          <span class="brand-sub"><svg class="ico"><use href="#i-pin"/></svg><span class="js-address"></span></span>
+        </span>
+      </a>
+      <div class="header-actions">
+        <a class="btn btn-primary js-wa" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg>WhatsApp</a>
+        <a class="btn btn-line js-tel" href="#"><svg class="ico"><use href="#i-phone"/></svg><span class="js-phone"></span></a>
+        <button class="btn btn-line btn-icon" id="shareBtn" type="button" aria-label="Share this page"><svg class="ico"><use href="#i-share"/></svg><span class="hide-sm">Share</span></button>
+        <a class="btn btn-line btn-icon" href="/admin" aria-label="Sign in"><svg class="ico"><use href="#i-user"/></svg><span class="hide-sm">Sign in</span></a>
+      </div>
+    </div>
+
+    <div class="wrap intro">
+      <div class="intro-text">
+        <p class="eyebrow">Showroom · Kigali</p>
+        <h1>Cars in stock</h1>
+        <p class="lead js-intro"></p>
+      </div>
+      <dl class="facts" aria-label="Stock summary">
+        <div><dt>In stock</dt><dd id="statStock">–</dd></div>
+        <div><dt>Models</dt><dd id="statModels">–</dd></div>
+        <div><dt>From</dt><dd><span id="statFrom">–</span> <small>RWF</small></dd></div>
+        <div><dt>New this week</dt><dd id="statNew">–</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <div class="wrap toolbar-row">
+      <div class="chips" id="chips" role="tablist" aria-label="Filter cars"></div>
+      <div class="tools">
+        <label class="search">
+          <svg class="ico"><use href="#i-search"/></svg>
+          <input id="search" type="search" placeholder="Search cars" aria-label="Search cars" autocomplete="off">
+        </label>
+        <label class="sort">
+          <span class="visually-hidden">Sort cars</span>
+          <select id="sort">
+            <option value="recommended">Recommended</option>
+            <option value="price-asc">Lowest price</option>
+            <option value="price-desc">Highest price</option>
+            <option value="newest">Recently added</option>
+            <option value="year-desc">Newest year</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap main">
+    <p class="result-count" id="resultCount" aria-live="polite"></p>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" hidden>
+      <svg class="ico ico-lg"><use href="#i-search"/></svg>
+      <p><b>No cars match that search.</b><br>Try another word, or ask us on WhatsApp. New stock arrives often.</p>
+      <button class="btn btn-line" type="button" id="resetFilters">Show all cars</button>
+    </div>
+
+    <section class="visit" aria-labelledby="visitTitle">
+      <div class="visit-copy">
+        <p class="eyebrow light">Visit us</p>
+        <h2 id="visitTitle">Come and see them in person</h2>
+        <p>Every car listed here is parked at our showroom. Take a closer look, ask anything on WhatsApp, or call before you come.</p>
+        <div class="visit-actions">
+          <a class="btn btn-primary js-wa" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg>Chat on WhatsApp</a>
+          <a class="btn btn-ghost-light js-tel" href="#"><svg class="ico"><use href="#i-phone"/></svg><span class="js-phone"></span></a>
+          <a class="btn btn-ghost-light js-map" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-nav"/></svg>Directions</a>
+        </div>
+      </div>
+      <address class="visit-card">
+        <img src="/brand/logo-full-white.png" alt="MRCARS" class="visit-logo" width="238" height="337">
+        <span class="visit-label">Showroom</span>
+        <strong class="js-address"></strong>
+        <span class="visit-label">Phone &amp; WhatsApp</span>
+        <a class="js-tel"><span class="js-phone"></span></a>
+      </address>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <div class="brand">
+        <img src="/brand/mark.png" alt="" class="brand-mark" width="32" height="32">
+        <span class="brand-text">
+          <span class="brand-name js-company">MRCARS Ltd</span>
+          <span class="brand-sub">Call or WhatsApp <a class="js-tel"><span class="js-phone"></span></a></span>
+        </span>
+      </div>
+      <p class="footer-meta">© <span id="year"></span> <span class="js-company">MRCARS Ltd</span> · Stock updated <time id="updated"></time> · <a class="footer-link" href="/admin">Staff sign in</a></p>
+    </div>
+  </footer>
+
+  <!-- Car details -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <button class="modal-close" type="button" data-close aria-label="Close"><svg class="ico"><use href="#i-x"/></svg></button>
+      <div class="modal-media">
+        <div class="stage" id="mStage"></div>
+        <button class="stage-nav prev" id="mPrev" type="button" aria-label="Previous photo"><svg class="ico"><use href="#i-left"/></svg></button>
+        <button class="stage-nav next" id="mNext" type="button" aria-label="Next photo"><svg class="ico"><use href="#i-right"/></svg></button>
+        <span class="stage-count" id="mCount"></span>
+        <div class="thumbs" id="mThumbs"></div>
+      </div>
+      <div class="modal-info">
+        <p class="eyebrow" id="mMeta"></p>
+        <h3 id="mTitle"></h3>
+        <p class="modal-price" id="mPrice"></p>
+        <p class="modal-stock" id="mStock"></p>
+        <dl class="spec-list" id="mSpecs"></dl>
+        <p class="modal-desc" id="mDesc"></p>
+        <p class="modal-note" id="mNote"></p>
+        <div class="modal-actions">
+          <a class="btn btn-primary btn-lg" id="mWa" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg>Ask about this car</a>
+          <a class="btn btn-line btn-lg js-tel" href="#"><svg class="ico"><use href="#i-phone"/></svg>Call</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2a9.8 9.8 0 0 0-8.4 14.8L2.3 21.7l4.8-1.3A9.8 9.8 0 1 0 12 2.2zm0 1.8a8 8 0 1 1-4.1 14.9l-.3-.2-2.8.8.8-2.7-.2-.3A8 8 0 0 1 12 4zm-3.3 4.2c-.2 0-.5 0-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5 0 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4l-.5-.3-1.8-.9c-.2-.1-.4-.1-.6.1l-.8 1c-.2.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.5-1.5-1.8-.2-.3 0-.4.1-.5l.4-.5.3-.4v-.4l-.9-2c-.2-.5-.4-.5-.6-.5h-.5z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5h3l1.7 4.3-2 1.3a10.5 10.5 0 0 0 6.7 6.7l1.3-2 4.3 1.7v3a2 2 0 0 1-2.1 2A16.5 16.5 0 0 1 3.5 5.6a2 2 0 0 1 2-2.1z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></g></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></g></symbol>
+    <symbol id="i-nav" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M20.5 3.5 3.5 10.6l7 2.9 2.9 7z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/></g></symbol>
+    <symbol id="i-photos" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M8 5l1.5-2h5L16 5"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></symbol>
+  </svg>
+
+  <script src="/car-art.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+node_modules/
+# Live data: admin login hash, cars and uploaded photos stay off GitHub
+data/
+uploads/
+*.tmp
+.env

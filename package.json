@@ -1,0 +1,16 @@
+{
+  "name": "mrcarsltd",
+  "version": "1.0.0",
+  "description": "MRCARS Ltd car catalogue with admin dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "set-admin": "node scripts/set-admin.js"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "express": "^4.22.3",
+    "multer": "^2.4.0"
+  }
+}

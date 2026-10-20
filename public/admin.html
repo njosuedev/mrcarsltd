@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · MRCARS Ltd</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#14181f">
+  <link rel="icon" href="/brand/icon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/brand/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body class="admin">
+  <!-- Login -->
+  <main class="login" id="loginView" hidden>
+    <form class="login-card" id="loginForm" novalidate>
+      <img src="/brand/logo-full.png" alt="MRCARS" width="238" height="337" class="login-logo">
+      <div>
+        <h1 class="js-company">MRCARS Ltd</h1>
+        <p class="muted">Sign in to manage your stock</p>
+      </div>
+      <label class="field">
+        <span class="label">Email</span>
+        <input type="email" name="email" required autocomplete="username" inputmode="email">
+      </label>
+      <label class="field">
+        <span class="label">Password</span>
+        <span class="pw">
+          <input type="password" name="password" required autocomplete="current-password">
+          <button type="button" class="pw-toggle" aria-label="Show password">Show</button>
+        </span>
+      </label>
+      <p class="form-error" id="loginError" role="alert" hidden></p>
+      <button class="btn btn-primary btn-lg" type="submit">Sign in</button>
+      <a class="back-link" href="/">← Back to the website</a>
+    </form>
+  </main>
+
+  <!-- Dashboard -->
+  <div id="appView" hidden>
+    <header class="admin-header">
+      <div class="wrap admin-header-row">
+        <a class="brand" href="/admin">
+          <img src="/brand/mark.png" alt="" class="brand-mark" width="34" height="34">
+          <span class="brand-text">
+            <span class="brand-name js-company">MRCARS Ltd</span>
+            <span class="brand-sub">Dashboard</span>
+          </span>
+        </a>
+        <nav class="tabs" aria-label="Sections">
+          <button class="tab" aria-selected="true" data-tab="cars" type="button">Stock</button>
+          <button class="tab" aria-selected="false" data-tab="settings" type="button">Settings</button>
+        </nav>
+        <div class="header-actions">
+          <a class="btn btn-line btn-sm" href="/" target="_blank" rel="noopener">View site ↗</a>
+          <button class="btn btn-line btn-sm" id="logoutBtn" type="button">Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap admin-main">
+      <!-- Stock -->
+      <section data-panel="cars">
+        <div class="page-head">
+          <div>
+            <h1>Stock</h1>
+            <p class="muted">Everything you post here appears on the website straight away.</p>
+          </div>
+          <button class="btn btn-primary" id="addCarBtn" type="button">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Post a car
+          </button>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><span>On the website</span><b id="kLive">0</b></div>
+          <div class="kpi"><span>Cars in stock</span><b id="kUnits">0</b></div>
+          <div class="kpi"><span>Stock value (RWF)</span><b id="kValue">0</b></div>
+          <div class="kpi"><span>Hidden or sold out</span><b id="kOff">0</b></div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-tools">
+            <label class="search">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></g></svg>
+              <input id="adminSearch" type="search" placeholder="Search your stock" aria-label="Search stock">
+            </label>
+            <div class="seg" role="group" aria-label="Show">
+              <button type="button" class="seg-btn" aria-pressed="true" data-view="all">All</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-view="live">Live</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-view="off">Hidden / sold</button>
+            </div>
+          </div>
+          <table class="cars-table">
+            <thead>
+              <tr><th>Car</th><th class="r">Price (RWF)</th><th>Stock</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr>
+            </thead>
+            <tbody id="carsBody"></tbody>
+          </table>
+          <div class="table-empty" id="carsEmpty" hidden></div>
+        </div>
+      </section>
+
+      <!-- Business details -->
+      <section data-panel="settings" hidden>
+        <div class="page-head">
+          <div>
+            <h1>Business details</h1>
+            <p class="muted">Shown in the header, the “Visit us” section and the footer of the website.</p>
+          </div>
+        </div>
+        <form class="panel" id="settingsForm">
+          <div class="form-grid">
+            <label class="field"><span class="label">Business name</span><input name="companyName" required></label>
+            <label class="field"><span class="label">Phone number</span><input name="phone" required placeholder="+250 787 615 702"></label>
+            <label class="field"><span class="label">WhatsApp number</span><input name="whatsapp" required placeholder="250787615702" inputmode="tel"><span class="hint">Country code first, numbers only.</span></label>
+            <label class="field"><span class="label">Showroom address</span><input name="address"></label>
+            <label class="field span-2"><span class="label">Google Maps link</span><input name="mapUrl" type="url" placeholder="https://maps.app.goo.gl/…"><span class="hint">Used by the “Directions” button.</span></label>
+            <label class="field span-2"><span class="label">Intro text</span><textarea name="intro" rows="2"></textarea><span class="hint">One or two sentences under “Cars in stock”.</span></label>
+          </div>
+          <div class="panel-foot"><button class="btn btn-primary" type="submit">Save changes</button></div>
+        </form>
+
+        <div class="page-head sub-head">
+          <div>
+            <h2>Sign-in details</h2>
+            <p class="muted">Signed in as <b id="accountEmail"></b>. Changing the password signs out every other device.</p>
+          </div>
+        </div>
+        <form class="panel" id="accountForm" autocomplete="off">
+          <div class="form-grid">
+            <label class="field span-2"><span class="label">Email</span><input type="email" name="email" required autocomplete="username"></label>
+            <label class="field"><span class="label">New password</span><input type="password" name="newPassword" minlength="8" autocomplete="new-password" placeholder="Leave empty to keep the current one"><span class="hint">At least 8 characters.</span></label>
+            <label class="field"><span class="label">Repeat new password</span><input type="password" name="confirmPassword" autocomplete="new-password"></label>
+            <label class="field span-2"><span class="label">Current password <em>*</em></span><input type="password" name="currentPassword" required autocomplete="current-password"><span class="hint">Needed to confirm it's you.</span></label>
+          </div>
+          <p class="form-error panel-error" id="accountError" role="alert" hidden></p>
+          <div class="panel-foot"><button class="btn btn-primary" type="submit">Update sign-in details</button></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Car form -->
+  <div class="modal" id="carModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <form class="drawer" id="carForm" novalidate role="dialog" aria-modal="true" aria-labelledby="carFormTitle">
+      <div class="drawer-head">
+        <h2 id="carFormTitle">Post a car</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Close">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <fieldset class="group">
+          <legend>Photos</legend>
+          <div class="photo-grid" id="photoGrid"></div>
+          <label class="drop" id="drop">
+            <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" multiple hidden>
+            <svg class="ico ico-lg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M8 5l1.5-2h5L16 5"/></g></svg>
+            <span><b>Add photos</b> or drag them here</span>
+            <small>JPG, PNG or WebP, up to 10 MB each. The first photo is the cover.</small>
+          </label>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend>The car</legend>
+          <div class="form-grid">
+            <label class="field span-2"><span class="label">Make and model <em>*</em></span><input name="name" required placeholder="BYD Yuan Plus"></label>
+            <label class="field"><span class="label">Year</span><input name="year" placeholder="2024, or 2020-2022"></label>
+            <label class="field"><span class="label">Body type</span>
+              <input name="category" list="catList" placeholder="SUV">
+              <datalist id="catList"><option>SUV</option><option>Sedan</option><option>Pickup</option><option>Hatchback</option><option>Van</option><option>Bus</option><option>Truck</option></datalist>
+            </label>
+            <label class="field"><span class="label">Condition</span>
+              <select name="condition"><option>Used</option><option>New</option></select>
+            </label>
+            <label class="field"><span class="label">Mileage</span><span class="affix"><input name="mileage" inputmode="numeric" placeholder="0"><i>km</i></span></label>
+            <div class="field"><span class="label">Colour</span>
+              <div class="colour-row">
+                <input name="colour" placeholder="White" aria-label="Colour name">
+                <input type="color" name="colourHex" value="#ffffff" aria-label="Colour swatch">
+              </div>
+              <div class="swatches" id="swatches"></div>
+            </div>
+            <label class="field span-2"><span class="label">Description</span><textarea name="description" rows="3" placeholder="Engine or battery range, features, service history, papers…"></textarea></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend>Price and stock</legend>
+          <div class="form-grid">
+            <label class="field"><span class="label">Price <em>*</em></span><span class="affix"><input name="price" inputmode="numeric" required placeholder="20,000,000"><i>RWF</i></span></label>
+            <label class="field"><span class="label">Units in stock</span><input name="quantity" type="number" min="0" value="1"></label>
+            <label class="switch span-2"><input type="checkbox" name="priceFrom"><span class="track"></span><span><b>Starting price</b><small>Shows “From” before the price, for cars with several versions.</small></span></label>
+            <label class="switch span-2"><input type="checkbox" name="featured"><span class="track"></span><span><b>Feature this car</b><small>Puts it first on the website.</small></span></label>
+            <label class="switch span-2"><input type="checkbox" name="published" checked><span class="track"></span><span><b>Show on website</b><small>Turn off to keep it as a draft.</small></span></label>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="drawer-foot">
+        <p class="form-error" id="carError" role="alert" hidden></p>
+        <button class="btn btn-line" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit" id="carSubmit">Publish</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Confirm dialog -->
+  <div class="modal" id="confirmModal" hidden>
+    <div class="modal-backdrop" data-cancel></div>
+    <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+      <h2 id="confirmTitle">Delete this car?</h2>
+      <p id="confirmText" class="muted"></p>
+      <div class="confirm-actions">
+        <button class="btn btn-line" type="button" data-cancel>Keep it</button>
+        <button class="btn btn-danger" type="button" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script src="/car-art.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>
