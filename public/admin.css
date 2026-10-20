@@ -196,6 +196,14 @@
   .photo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
+@media (max-width: 400px) {
+  .admin-header .brand-sub { display: none; }
+  .admin-header .brand-name { font-size: 16px; }
+  .admin-header .header-actions { gap: 6px; }
+  .admin-header .header-actions .btn { height: 34px; padding: 0 10px; font-size: 12.5px; }
+  .summary { font-size: 13.5px; }
+}
+
 /* Password field + account section */
 .pw { position: relative; display: block; }
 .pw input { padding-right: 64px !important; }

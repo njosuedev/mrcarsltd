@@ -111,10 +111,12 @@
             ${car.priceFrom ? '<span class="price-from">From</span>' : ''}
             <span class="price-value">${money(car.price)}</span><span class="price-cur">RWF</span>
           </p>
-          <a class="btn btn-line card-wa" href="${waLink(carMessage(car))}" target="_blank" rel="noopener">${icon('i-wa')}Ask on WhatsApp</a>
+          <a class="btn btn-line card-wa" href="${waLink(carMessage(car))}" target="_blank" rel="noopener">${icon('i-wa')}<span><span class="hide-xs">Ask on </span>WhatsApp</span></a>
         </div>
       </article>`;
   }
+
+  const sortSel = $('#sort');
 
   // "Just in" only means something when most of the stock is older
   let showJustIn = false;
@@ -126,7 +128,7 @@
     $('#empty').hidden = list.length > 0;
     const prices = list.map((c) => c.price).filter((p) => p > 0);
     $('#resultCount').innerHTML = list.length
-      ? `<b>${list.length}</b> ${list.length === 1 ? 'car' : 'cars'}${prices.length > 1 ? ` · from ${money(Math.min(...prices))} RWF` : ''}`
+      ? `<b>${list.length}</b> ${list.length === 1 ? 'car' : 'cars'}${prices.length > 1 ? ` · from ${money(Math.min(...prices))} RWF` : ''}${sortSel.value !== 'recommended' ? ` · ${sortSel.selectedOptions[0].text}` : ''}`
       : '';
   }
 
@@ -149,11 +151,12 @@
     if (!imgs.length) {
       stage.className = 'stage art';
       stage.innerHTML = carArt(current);
-      $('#mPrev').hidden = $('#mNext').hidden = $('#mCount').hidden = true;
+      $('#mPrev').hidden = $('#mNext').hidden = $('#mCount').hidden = $('#mZoom').hidden = true;
       return;
     }
     photoIdx = (i + imgs.length) % imgs.length;
     stage.className = 'stage';
+    $('#mZoom').hidden = false;
     stage.innerHTML = `<img src="${esc(imgs[photoIdx])}" alt="${esc(current.name)}, photo ${photoIdx + 1} of ${imgs.length}">`;
     $('#mCount').textContent = `${photoIdx + 1} / ${imgs.length}`;
     $$('#mThumbs button').forEach((t, n) => t.setAttribute('aria-current', n === photoIdx));
@@ -185,6 +188,7 @@
     $('#mSpecs').innerHTML = specs.map(([k, v, raw]) => `<div><dt>${k}</dt><dd>${raw ? v : esc(v)}</dd></div>`).join('');
     $('#mDesc').textContent = c.description || '';
     $('#mWa').href = waLink(carMessage(c));
+    $('.modal-media').classList.toggle('has-thumbs', (c.images || []).length > 1);
     $('#mThumbs').innerHTML = (c.images || []).length > 1
       ? c.images.map((src, i) => `<button type="button" data-thumb="${i}" aria-label="Photo ${i + 1}"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join('')
       : '';
@@ -198,11 +202,48 @@
   function closeModal() {
     if ($('#modal').hidden) return;
     $('#modal').hidden = true;
+    viewer.hidden = true;
     document.documentElement.style.overflow = '';
     current = null;
     history.replaceState(null, '', location.pathname + location.search);
     lastFocus?.focus?.();
   }
+
+  // ---------- Full-screen photo viewer ----------
+  const viewer = $('#viewer');
+  function viewerShow(i) {
+    const imgs = current.images;
+    photoIdx = (i + imgs.length) % imgs.length;
+    $('#vImg').src = imgs[photoIdx];
+    $('#vImg').alt = `${current.name}, photo ${photoIdx + 1} of ${imgs.length}`;
+    $('#vCount').textContent = `${photoIdx + 1} / ${imgs.length}`;
+    $('#vCount').hidden = $('#vPrev').hidden = $('#vNext').hidden = imgs.length < 2;
+  }
+  function openViewer() {
+    if (!current?.images?.length) return;
+    viewerShow(photoIdx);
+    viewer.hidden = false;
+    $('#vClose').focus();
+  }
+  function closeViewer() {
+    viewer.hidden = true;
+    showPhoto(photoIdx); // keep the details window on the same photo
+    $('#mZoom').focus();
+  }
+  $('#mZoom').addEventListener('click', openViewer);
+  $('#mStage').addEventListener('click', (e) => { if (e.target.tagName === 'IMG') openViewer(); });
+  $('#vClose').addEventListener('click', closeViewer);
+  $('#vPrev').addEventListener('click', () => viewerShow(photoIdx - 1));
+  $('#vNext').addEventListener('click', () => viewerShow(photoIdx + 1));
+  let vTouch = null;
+  viewer.addEventListener('touchstart', (e) => { vTouch = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+  viewer.addEventListener('touchend', (e) => {
+    // ignore pinch-zoom gestures and swipes while zoomed in
+    if (vTouch === null || (window.visualViewport && visualViewport.scale > 1.05)) return;
+    const dx = e.changedTouches[0].clientX - vTouch;
+    if (Math.abs(dx) > 40) viewerShow(photoIdx + (dx < 0 ? 1 : -1));
+    vTouch = null;
+  });
 
   // Swipe between photos on touch screens
   let touchX = null;
@@ -240,6 +281,13 @@
   $('#mPrev').addEventListener('click', () => showPhoto(photoIdx - 1));
   $('#mNext').addEventListener('click', () => showPhoto(photoIdx + 1));
   document.addEventListener('keydown', (e) => {
+    if (!viewer.hidden) {
+      if (e.key === 'Escape') closeViewer();
+      if (e.key === 'ArrowLeft') viewerShow(photoIdx - 1);
+      if (e.key === 'ArrowRight') viewerShow(photoIdx + 1);
+      if (e.key === 'Tab') { e.preventDefault(); $('#vClose').focus(); }
+      return;
+    }
     if ($('#modal').hidden) {
       if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('#search').focus(); }
       return;

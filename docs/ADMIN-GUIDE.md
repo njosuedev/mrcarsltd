@@ -51,7 +51,7 @@ You can also use the **Sign in** button at the top of the website, or the **Staf
 | Add stock back | Click **+**. The car shows again |
 | Hide a car for now | Click its status to switch it from **Live** to **Hidden** |
 | Remove a car for good | **Delete**, then confirm. Its photos are deleted too, and this can't be undone |
-| Find a car | Use the search box, or the **All / Live / Hidden / sold** filter |
+| Find a car | Use the search box, or the **All / Live / Not live** filter |
 
 Changes show on the website straight away. Customers only need to refresh the page.
 
