@@ -20,7 +20,7 @@ You can also use the **Sign in** button at the top of the website, or the **Staf
 ## Posting a car
 
 1. Click **Post a car**.
-2. **Photos.** Click *Add photos* or drag pictures in. You can add up to 20, as JPG, PNG or WebP, up to 10 MB each.
+2. **Photos.** Click *Add photos* or drag pictures in. You can add up to 20, as JPG, PNG or WebP. Big phone photos are resized automatically before they upload, so posting stays quick on mobile data.
    - The **first photo is the cover** that customers see on the card.
    - Drag photos to reorder them, or click **Make cover** on one.
    - Click **Remove** on a photo to take it off.
@@ -64,7 +64,7 @@ Changes show on the website straight away. Customers only need to refresh the pa
 | **Sold out** | Stock is 0, so not on the website |
 | **No photos** | Needs at least one photo before it can show |
 
-The numbers at the top show: cars on the website, total units in stock, stock value (price × units), and cars that are hidden or sold out.
+The line under **Stock** shows: cars on the website, total units in stock, stock value (price × units), and cars that are hidden or sold out.
 
 ## Business details
 
@@ -94,5 +94,5 @@ Changing the password signs out every other device.
 
 - Shoot in daylight: front three-quarter, side, back, interior, dashboard, engine.
 - Make the cover photo the best outside shot.
-- Phone photos are fine. Huge files (over 10 MB) will be refused, so send them at "large" size, not "original".
+- Phone photos are fine at full size. The dashboard shrinks them to 1920 px before uploading.
 - Put the important facts in the description: fuel or battery range, transmission, papers ready, warranty.

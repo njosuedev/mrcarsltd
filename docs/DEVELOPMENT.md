@@ -33,7 +33,7 @@ There is no auto-reload. Restart `npm start` after editing `server.js`. For chan
 | `scripts/set-admin.js` | Writes `data/admin.json` (email + scrypt salt/hash) |
 | `scripts/deploy.sh` | Sends the code to the VPS with tar over ssh, runs `npm ci`, restarts the service |
 | `public/index.html` | Public page markup + SVG icon sprite (`<symbol id="i-…">`) |
-| `public/app.js` | Fetches `/api/catalogue`; renders summary stats, filter chips, search/sort, cards, and the details window (swipe, keyboard, focus trap); builds WhatsApp links; handles `#car-<id>` deep links |
+| `public/app.js` | Fetches `/api/catalogue`; renders the map, filter chips, search/sort, cards, and the details window (swipe, keyboard, focus trap); builds WhatsApp links; handles `#car-<id>` deep links |
 | `public/styles.css` | Design tokens on `:root` and all public styles. **Also loaded by the dashboard** |
 | `public/admin.html` | Dashboard markup: login view, Stock tab, Settings tab, car form drawer, confirm dialog |
 | `public/admin.js` | Dashboard logic: auth, table, KPIs, filters, car form, photo ordering, settings, account |
@@ -117,7 +117,7 @@ Files are deleted when a photo is removed from a car, or when the car is deleted
 - **Login limit.** 5 failures per IP in 15 minutes returns `429`. It uses `req.ip`, which is only correct behind nginx when `TRUST_PROXY` is set.
 - **Changing the password** clears every other session.
 - **CSRF.** Covered by `SameSite=Strict`. All changes require the cookie.
-- **Uploads.** Only image types are accepted (JPEG, PNG, WebP, GIF), with server-generated filenames, max 10 MB each, 20 per request.
+- **Uploads.** Only image types are accepted (JPEG, PNG, WebP, GIF), with server-generated filenames, max 10 MB each, 20 per request. The dashboard resizes photos to 1920 px (JPEG, quality 0.85) in the browser before upload (`shrink()` in `admin.js`).
 - **To do once HTTPS exists:** add `Secure` to the cookie.
 
 ---

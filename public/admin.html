@@ -68,19 +68,12 @@
         <div class="page-head">
           <div>
             <h1>Stock</h1>
-            <p class="muted">Everything you post here appears on the website straight away.</p>
+            <p class="muted summary" id="summary"></p>
           </div>
           <button class="btn btn-primary" id="addCarBtn" type="button">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             Post a car
           </button>
-        </div>
-
-        <div class="kpis">
-          <div class="kpi"><span>On the website</span><b id="kLive">0</b></div>
-          <div class="kpi"><span>Cars in stock</span><b id="kUnits">0</b></div>
-          <div class="kpi"><span>Stock value (RWF)</span><b id="kValue">0</b></div>
-          <div class="kpi"><span>Hidden or sold out</span><b id="kOff">0</b></div>
         </div>
 
         <div class="table-card">
@@ -110,7 +103,7 @@
         <div class="page-head">
           <div>
             <h1>Business details</h1>
-            <p class="muted">Shown in the header, the “Visit us” section and the footer of the website.</p>
+            <p class="muted">Shown in the header, the “Visit the showroom” section and the footer of the website.</p>
           </div>
         </div>
         <form class="panel" id="settingsForm">
@@ -164,7 +157,7 @@
             <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" multiple hidden>
             <svg class="ico ico-lg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M8 5l1.5-2h5L16 5"/></g></svg>
             <span><b>Add photos</b> or drag them here</span>
-            <small>JPG, PNG or WebP, up to 10 MB each. The first photo is the cover.</small>
+            <small>JPG, PNG or WebP. Large photos are resized automatically. The first photo is the cover.</small>
           </label>
         </fieldset>
 

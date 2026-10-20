@@ -69,14 +69,21 @@
     return car.published ? ['on', 'Live', 'Click to hide from the website'] : ['off', 'Hidden', 'Click to show on the website'];
   }
 
-  function renderKpis() {
+  // One line under the heading, e.g. "6 on the website · 12 units · 248,400,000 RWF in stock · 1 hidden or sold out"
+  function renderSummary() {
+    const el = $('#summary');
+    if (!cars.length) { el.textContent = 'Cars you post here appear on the website straight away.'; return; }
     const live = cars.filter(isLive);
-    $('#kLive').textContent = live.length;
-    $('#kUnits').textContent = live.reduce((s, c) => s + c.quantity, 0);
+    const units = live.reduce((s, c) => s + c.quantity, 0);
     const value = live.reduce((s, c) => s + c.price * c.quantity, 0);
-    $('#kValue').textContent = value >= 1e9 ? (value / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B' : value >= 1e6 ? (value / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : money(value);
-    $('#kValue').title = money(value) + ' RWF';
-    $('#kOff').textContent = cars.length - live.length;
+    const off = cars.length - live.length;
+    const parts = [
+      `<b>${live.length}</b> on the website`,
+      `<b>${units}</b> ${units === 1 ? 'unit' : 'units'}`,
+      `<b>${money(value)}</b> RWF in stock`,
+    ];
+    if (off) parts.push(`<b>${off}</b> hidden or sold out`);
+    el.innerHTML = parts.join('<span class="sep">·</span>');
   }
 
   function thumbHtml(c) {
@@ -84,7 +91,7 @@
   }
 
   function renderCars() {
-    renderKpis();
+    renderSummary();
     const q = $('#adminSearch').value.trim().toLowerCase();
     const list = cars.filter((c) => {
       if (view === 'live' && !isLive(c)) return false;
@@ -256,14 +263,47 @@
       </div>`).join('');
   }
 
-  function addFiles(files) {
-    let skipped = 0;
-    for (const file of files) {
-      if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024) { skipped++; continue; }
-      photos.push({ file, preview: URL.createObjectURL(file) });
+  // Phone photos are often 4-8 MB. Resize to 1920 px on the long side before upload,
+  // so posting is quick on mobile data and the website loads fast.
+  const MAX_SIDE = 1920;
+  async function shrink(file) {
+    try {
+      const bmp = await createImageBitmap(file);
+      const scale = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+      if (scale === 1 && file.size < 1.5 * 1024 * 1024) { bmp.close(); return file; }
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bmp.width * scale);
+      canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      bmp.close();
+      const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.85));
+      if (!blob || blob.size >= file.size) return file;
+      return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch {
+      return file; // browser could not decode it; send the original
     }
-    if (skipped) toast(`${skipped} file(s) skipped. Use JPG, PNG or WebP under 10 MB.`);
-    renderPhotos();
+  }
+
+  async function addFiles(files) {
+    let skipped = 0;
+    const list = [...files].filter((f) => {
+      const ok = /^image\/(jpeg|png|webp)$/.test(f.type) && f.size <= 40 * 1024 * 1024;
+      if (!ok) skipped++;
+      return ok;
+    });
+    if (!list.length) { if (skipped) toast('Use JPG, PNG or WebP photos.'); return; }
+    $('#carSubmit').disabled = true;
+    const drop = $('#drop b');
+    drop.textContent = `Preparing ${list.length} photo${list.length > 1 ? 's' : ''}…`;
+    for (const original of list) {
+      const file = await shrink(original);
+      if (file.size > 10 * 1024 * 1024) { skipped++; continue; }
+      photos.push({ file, preview: URL.createObjectURL(file) });
+      renderPhotos();
+    }
+    drop.textContent = 'Add photos';
+    $('#carSubmit').disabled = false;
+    if (skipped) toast(`${skipped} file(s) skipped. Use JPG, PNG or WebP photos.`);
   }
 
   $('#photoInput').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
@@ -423,10 +463,16 @@
   });
 
   // ---------- Tabs ----------
+  function showTab(name) {
+    if (!$(`[data-panel="${name}"]`)) name = 'cars';
+    $$('.tab').forEach((x) => x.setAttribute('aria-selected', x.dataset.tab === name));
+    $$('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== name));
+  }
   $$('.tab').forEach((t) => t.addEventListener('click', () => {
-    $$('.tab').forEach((x) => x.setAttribute('aria-selected', x === t));
-    $$('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== t.dataset.tab));
+    showTab(t.dataset.tab);
+    history.replaceState(null, '', t.dataset.tab === 'cars' ? location.pathname : '#' + t.dataset.tab);
   }));
+  showTab(location.hash.slice(1));
 
   // ---------- Auth ----------
   $('#loginForm').addEventListener('submit', async (e) => {

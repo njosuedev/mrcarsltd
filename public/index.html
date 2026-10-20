@@ -38,17 +38,8 @@
     </div>
 
     <div class="wrap intro">
-      <div class="intro-text">
-        <p class="eyebrow">Showroom · Kigali</p>
-        <h1>Cars in stock</h1>
-        <p class="lead js-intro"></p>
-      </div>
-      <dl class="facts" aria-label="Stock summary">
-        <div><dt>In stock</dt><dd id="statStock">–</dd></div>
-        <div><dt>Models</dt><dd id="statModels">–</dd></div>
-        <div><dt>From</dt><dd><span id="statFrom">–</span> <small>RWF</small></dd></div>
-        <div><dt>New this week</dt><dd id="statNew">–</dd></div>
-      </dl>
+      <h1>Cars in stock</h1>
+      <p class="lead js-intro"></p>
     </div>
   </header>
 
@@ -85,22 +76,18 @@
 
     <section class="visit" aria-labelledby="visitTitle">
       <div class="visit-copy">
-        <p class="eyebrow light">Visit us</p>
-        <h2 id="visitTitle">Come and see them in person</h2>
-        <p>Every car listed here is parked at our showroom. Take a closer look, ask anything on WhatsApp, or call before you come.</p>
+        <h2 id="visitTitle">Visit the showroom</h2>
+        <p>All the cars listed here are parked at our showroom. Message or call before you come, and we will have the car ready for you.</p>
+        <dl class="visit-details">
+          <div><dt>Address</dt><dd class="js-address"></dd></div>
+          <div><dt>Phone &amp; WhatsApp</dt><dd><a class="js-tel"><span class="js-phone"></span></a></dd></div>
+        </dl>
         <div class="visit-actions">
           <a class="btn btn-primary js-wa" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg>Chat on WhatsApp</a>
-          <a class="btn btn-ghost-light js-tel" href="#"><svg class="ico"><use href="#i-phone"/></svg><span class="js-phone"></span></a>
-          <a class="btn btn-ghost-light js-map" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-nav"/></svg>Directions</a>
+          <a class="btn btn-line js-map" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-nav"/></svg>Get directions</a>
         </div>
       </div>
-      <address class="visit-card">
-        <img src="/brand/logo-full-white.png" alt="MRCARS" class="visit-logo" width="238" height="337">
-        <span class="visit-label">Showroom</span>
-        <strong class="js-address"></strong>
-        <span class="visit-label">Phone &amp; WhatsApp</span>
-        <a class="js-tel"><span class="js-phone"></span></a>
-      </address>
+      <div class="visit-map" id="visitMap"></div>
     </section>
   </main>
 
@@ -130,13 +117,12 @@
         <div class="thumbs" id="mThumbs"></div>
       </div>
       <div class="modal-info">
-        <p class="eyebrow" id="mMeta"></p>
+        <p class="modal-meta" id="mMeta"></p>
         <h3 id="mTitle"></h3>
         <p class="modal-price" id="mPrice"></p>
         <p class="modal-stock" id="mStock"></p>
         <dl class="spec-list" id="mSpecs"></dl>
         <p class="modal-desc" id="mDesc"></p>
-        <p class="modal-note" id="mNote"></p>
         <div class="modal-actions">
           <a class="btn btn-primary btn-lg" id="mWa" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa"/></svg>Ask about this car</a>
           <a class="btn btn-line btn-lg js-tel" href="#"><svg class="ico"><use href="#i-phone"/></svg>Call</a>

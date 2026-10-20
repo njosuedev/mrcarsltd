@@ -157,7 +157,7 @@ To see which email is the admin: `grep email /opt/mrcars/data/admin.json`.
 | Site doesn't load at all | App or nginx stopped, or the server is down | `systemctl status mrcars nginx`, then restart whichever is stopped. If SSH also fails, reboot from the provider's control panel |
 | **502 Bad Gateway** | nginx is up but the app isn't | `journalctl -u mrcars -n 50`, fix the error, `systemctl restart mrcars` |
 | **413 Request Entity Too Large** | Upload bigger than nginx allows | Raise `client_max_body_size` in `/etc/nginx/sites-available/mrcars`, then `nginx -t && systemctl reload nginx` |
-| "File too large" when saving a car | A photo is over 10 MB | Resize the photo, or raise `fileSize` in `server.js` |
+| "File too large" when saving a car | A photo is still over 10 MB after the browser resized it (rare) | Resize the photo, or raise `fileSize` in `server.js` |
 | A photo silently doesn't appear | Not JPG/PNG/WebP/GIF (for example HEIC from an iPhone) | Convert it to JPG first |
 | "Too many failed attempts" | 5 wrong passwords from that IP | Wait 15 minutes, or `systemctl restart mrcars` to clear it |
 | "No admin account yet" | `data/admin.json` is missing | [Reset the password](#5-reset-the-dashboard-password) |

@@ -20,13 +20,8 @@
     return `Hello ${settings.companyName}, I'm interested in the ${title}${car.colour ? ` (${car.colour})` : ''} listed at ${money(car.price)} RWF. Is it still available?\n${link}`;
   }
 
-  function stockText(q) {
-    if (q === 1) return 'Last one';
-    if (q === 2) return 'Only 2 left';
-    return `${q} available`;
-  }
 
-  // ---------- Header, facts, footer ----------
+  // ---------- Header, visit section, footer ----------
   function renderSettings() {
     const name = settings.companyName;
     document.title = `${name} · Cars in stock`;
@@ -37,20 +32,17 @@
     $$('.js-wa').forEach((el) => (el.href = waLink(`Hello ${name}, I'd like to ask about your cars.`)));
     $$('.js-tel').forEach((el) => (el.href = telLink()));
     $$('.js-map').forEach((el) => (el.href = settings.mapUrl || `https://maps.google.com/?q=${encodeURIComponent(settings.address)}`));
+    const where = settings.address ? encodeURIComponent(settings.address) : '';
+    $('#visitMap').innerHTML = where
+      ? `<iframe title="Map to ${esc(name)}" src="https://maps.google.com/maps?q=${where}&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+      : '';
+    $('#visitMap').hidden = !where;
     $('#year').textContent = new Date().getFullYear();
     const d = new Date(settings.updatedAt);
     const t = $('#updated');
     t.dateTime = d.toISOString();
     t.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' +
       d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function renderFacts() {
-    $('#statStock').textContent = cars.reduce((s, c) => s + c.quantity, 0);
-    $('#statModels').textContent = new Set(cars.map((c) => c.name.trim().toLowerCase())).size;
-    const prices = cars.map((c) => c.price).filter((p) => p > 0);
-    $('#statFrom').textContent = prices.length ? money(Math.min(...prices)) : '–';
-    $('#statNew').textContent = cars.filter(isNew).length;
   }
 
   // ---------- Filters ----------
@@ -105,36 +97,36 @@
       <article class="card">
         <button type="button" class="media${car.images?.length ? '' : ' art'}" data-open="${car.id}" aria-label="View ${esc(car.name)}">
           ${mediaHtml(car)}
-          <span class="tag${car.quantity <= 2 ? ' low' : ''}">${stockText(car.quantity)}</span>
-          ${isNew(car) && car.quantity > 2 ? '<span class="tag tag-new">Just in</span>' : ''}
+          ${isNew(car) && showJustIn ? '<span class="tag">Just in</span>' : ''}
         </button>
         <div class="card-body">
           ${sub ? `<p class="card-sub">${esc(sub)}</p>` : ''}
           <h2 class="card-title"><button type="button" data-open="${car.id}">${esc(car.name)}</button></h2>
           <ul class="card-specs">
-            <li>${money(car.mileage)} km</li>
-            <li>${esc(car.condition)}</li>
+            <li>${car.condition === 'New' ? 'New' : `${money(car.mileage)} km`}</li>
             ${car.colour ? `<li><span class="swatch" style="background:${esc(car.colourHex)}"></span>${esc(car.colour)}</li>` : ''}
+            ${car.quantity > 1 ? `<li>${car.quantity} available</li>` : ''}
           </ul>
           <p class="price">
             ${car.priceFrom ? '<span class="price-from">From</span>' : ''}
             <span class="price-value">${money(car.price)}</span><span class="price-cur">RWF</span>
           </p>
-          <div class="card-actions">
-            <a class="btn btn-primary" href="${waLink(carMessage(car))}" target="_blank" rel="noopener">${icon('i-wa')}WhatsApp</a>
-            <button class="btn btn-line" type="button" data-open="${car.id}">Details</button>
-          </div>
+          <a class="btn btn-line card-wa" href="${waLink(carMessage(car))}" target="_blank" rel="noopener">${icon('i-wa')}Ask on WhatsApp</a>
         </div>
       </article>`;
   }
 
+  // "Just in" only means something when most of the stock is older
+  let showJustIn = false;
+
   function renderGrid() {
+    showJustIn = cars.filter(isNew).length <= cars.length / 2;
     const list = visibleCars();
     $('#grid').innerHTML = list.map(cardHtml).join('');
     $('#empty').hidden = list.length > 0;
-    const units = list.reduce((s, c) => s + c.quantity, 0);
+    const prices = list.map((c) => c.price).filter((p) => p > 0);
     $('#resultCount').innerHTML = list.length
-      ? `Showing <b>${list.length}</b> ${list.length === 1 ? 'model' : 'models'} · ${units} ${units === 1 ? 'car' : 'cars'} available`
+      ? `<b>${list.length}</b> ${list.length === 1 ? 'car' : 'cars'}${prices.length > 1 ? ` · from ${money(Math.min(...prices))} RWF` : ''}`
       : '';
   }
 
@@ -181,8 +173,7 @@
     $('#mTitle').textContent = c.name;
     $('#mPrice').innerHTML = `${c.priceFrom ? '<small>From</small> ' : ''}${money(c.price)} <small>RWF</small>`;
     const stock = $('#mStock');
-    stock.textContent = c.quantity === 1 ? 'Last one in stock' : c.quantity === 2 ? 'Only 2 left in stock' : `${c.quantity} in stock`;
-    stock.classList.toggle('low', c.quantity <= 2);
+    stock.textContent = c.quantity > 1 ? `${c.quantity} in stock` : 'In stock';
     const specs = [
       ['Mileage', `${money(c.mileage)} km`],
       ['Condition', c.condition],
@@ -193,7 +184,6 @@
     ];
     $('#mSpecs').innerHTML = specs.map(([k, v, raw]) => `<div><dt>${k}</dt><dd>${raw ? v : esc(v)}</dd></div>`).join('');
     $('#mDesc').textContent = c.description || '';
-    $('#mNote').textContent = c.images?.length ? '' : 'Photos of this car are available on request. Message us on WhatsApp and we will send them right away.';
     $('#mWa').href = waLink(carMessage(c));
     $('#mThumbs').innerHTML = (c.images || []).length > 1
       ? c.images.map((src, i) => `<button type="button" data-thumb="${i}" aria-label="Photo ${i + 1}"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join('')
@@ -289,6 +279,12 @@
     } catch { /* cancelled */ }
   });
 
+  // Open a car from a shared link like /#car-<id>
+  function openFromHash() {
+    const m = location.hash.match(/^#car-(.+)$/);
+    if (m && m[1] !== current?.id) openCar(m[1]);
+  }
+
   // ---------- Load ----------
   renderSkeleton();
   fetch('/api/catalogue')
@@ -297,7 +293,6 @@
       settings = data.settings;
       cars = data.cars;
       renderSettings();
-      renderFacts();
       renderChips();
       renderGrid();
       if (!cars.length) {
@@ -305,8 +300,8 @@
         $('#empty p').innerHTML = '<b>New stock is on the way.</b><br>Message us on WhatsApp to hear first when it arrives.';
         $('#resetFilters').hidden = true;
       }
-      const m = location.hash.match(/^#car-(.+)$/);
-      if (m) openCar(m[1]);
+      openFromHash();
+      window.addEventListener('hashchange', openFromHash);
     })
     .catch(() => {
       $('#grid').innerHTML = '';
