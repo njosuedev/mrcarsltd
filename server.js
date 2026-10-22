@@ -195,7 +195,9 @@ app.post('/api/login', (req, res) => {
   failures.delete(ip);
   const token = crypto.randomBytes(32).toString('hex');
   sessions.add(token);
-  res.setHeader('Set-Cookie', `mrcars_admin=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 12}`);
+  // Mark the cookie Secure when the visitor came in over HTTPS (keeps plain-HTTP access by IP working).
+  const secure = req.secure ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `mrcars_admin=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 12}${secure}`);
   res.json({ ok: true });
 });
 
