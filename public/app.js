@@ -16,7 +16,7 @@
 
   function carMessage(car) {
     const title = [car.year, car.name].filter(Boolean).join(' ');
-    const link = `${location.origin}/#car-${car.id}`;
+    const link = location.origin + (car.url || `/#car-${car.id}`);
     return `Hello ${settings.companyName}, I'm interested in the ${title}${car.colour ? ` (${car.colour})` : ''} listed at ${money(car.price)} RWF. Is it still available?\n${link}`;
   }
 
@@ -24,7 +24,6 @@
   // ---------- Header, visit section, footer ----------
   function renderSettings() {
     const name = settings.companyName;
-    document.title = `${name} · Cars in stock`;
     $$('.js-company').forEach((el) => (el.textContent = name));
     $$('.js-address').forEach((el) => (el.textContent = settings.address));
     $$('.js-phone').forEach((el) => (el.textContent = settings.phone));
@@ -85,7 +84,7 @@
   // ---------- Cards ----------
   function mediaHtml(car) {
     if (car.images?.length) {
-      return `<img src="${esc(car.images[0])}" alt="${esc(car.name)}" loading="lazy" decoding="async">
+      return `<img src="${esc(car.images[0])}" alt="${esc([car.year, car.name, car.colour].filter(Boolean).join(' '))}" loading="lazy" decoding="async">
         ${car.images.length > 1 ? `<span class="photo-count">${icon('i-photos')}${car.images.length}</span>` : ''}`;
     }
     return carArt(car);
@@ -101,7 +100,7 @@
         </button>
         <div class="card-body">
           ${sub ? `<p class="card-sub">${esc(sub)}</p>` : ''}
-          <h2 class="card-title"><button type="button" data-open="${car.id}">${esc(car.name)}</button></h2>
+          <h2 class="card-title"><a href="${esc(car.url)}" data-open="${car.id}">${esc(car.name)}</a></h2>
           <ul class="card-specs">
             <li>${car.condition === 'New' ? 'New' : `${money(car.mileage)} km`}</li>
             ${car.colour ? `<li><span class="swatch" style="background:${esc(car.colourHex)}"></span>${esc(car.colour)}</li>` : ''}
@@ -196,7 +195,8 @@
     $('#modal').hidden = false;
     document.documentElement.style.overflow = 'hidden';
     $('.modal-close').focus();
-    history.replaceState(null, '', '#car-' + c.id);
+    history.replaceState(null, '', c.url);
+    document.title = `${[c.year, c.name].filter(Boolean).join(' ')} for sale in Kigali | ${settings.companyName}`;
   }
 
   function closeModal() {
@@ -205,7 +205,8 @@
     viewer.hidden = true;
     document.documentElement.style.overflow = '';
     current = null;
-    history.replaceState(null, '', location.pathname + location.search);
+    history.replaceState(null, '', '/');
+    document.title = homeTitle;
     lastFocus?.focus?.();
   }
 
@@ -266,7 +267,12 @@
   // ---------- Events ----------
   document.addEventListener('click', (e) => {
     const open = e.target.closest('[data-open]');
-    if (open) return openCar(open.dataset.open);
+    if (open) {
+      // let ctrl/cmd/shift-click open the car's page in a new tab
+      if (open.tagName === 'A' && (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0)) return;
+      e.preventDefault();
+      return openCar(open.dataset.open);
+    }
     const chip = e.target.closest('[data-chip]');
     if (chip) {
       filter = chip.dataset.chip;
@@ -327,16 +333,23 @@
     } catch { /* cancelled */ }
   });
 
-  // Open a car from a shared link like /#car-<id>
-  function openFromHash() {
+  // Open a car from its own address (/cars/...) or an old shared link (/#car-<id>)
+  function openFromUrl() {
     const m = location.hash.match(/^#car-(.+)$/);
-    if (m && m[1] !== current?.id) openCar(m[1]);
+    const car = m ? cars.find((c) => c.id === m[1]) : cars.find((c) => c.url === location.pathname);
+    if (car && car.id !== current?.id) openCar(car.id);
   }
+  let homeTitle = location.pathname.startsWith('/cars/') ? '' : document.title;
 
   // ---------- Load ----------
-  renderSkeleton();
-  fetch('/api/catalogue')
-    .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+  // The server puts the catalogue in the page; fall back to the API if it is missing
+  const inline = document.getElementById('catalogue');
+  let loadCatalogue;
+  try { loadCatalogue = Promise.resolve(JSON.parse(inline.textContent)); } catch {
+    renderSkeleton();
+    loadCatalogue = fetch('/api/catalogue').then((r) => { if (!r.ok) throw new Error(); return r.json(); });
+  }
+  loadCatalogue
     .then((data) => {
       settings = data.settings;
       cars = data.cars;
@@ -348,8 +361,9 @@
         $('#empty p').innerHTML = '<b>New stock is on the way.</b><br>Message us on WhatsApp to hear first when it arrives.';
         $('#resetFilters').hidden = true;
       }
-      openFromHash();
-      window.addEventListener('hashchange', openFromHash);
+      if (!homeTitle) homeTitle = `${settings.companyName} · New & used cars for sale in Kigali, Rwanda`;
+      openFromUrl();
+      window.addEventListener('hashchange', openFromUrl);
     })
     .catch(() => {
       $('#grid').innerHTML = '';

@@ -212,10 +212,10 @@ so this should be rare.
 **How it is set up**
 - DNS is on Cloudflare (nameservers `coby` / `lucy.ns.cloudflare.com`). Two `A` records, `@` and `www`, point to `102.202.208.195`.
 - nginx has three server blocks:
-  - HTTPS on 443 for `mrcarsltd.com` / `www`, which serves the app.
+  - HTTPS on 443 for `mrcarsltd.com`, which serves the app. `www.mrcarsltd.com` redirects to it (one main address for Google).
   - HTTP on 80 for the domain, which redirects to HTTPS (except Let's Encrypt challenges).
   - HTTP on 80 for anything else (the bare IP), which serves the app.
-- The app settings shared by both are in `/etc/nginx/snippets/mrcars-app.conf`.
+- The app settings shared by both are in `/etc/nginx/snippets/mrcars-app.conf`, including gzip compression.
 - `/etc/nginx/conf.d/cloudflare-realip.conf` takes the visitor's real IP from `CF-Connecting-IP` if the Cloudflare proxy is turned on.
 
 **Certificate**
@@ -305,3 +305,22 @@ ufw allow 222/tcp && ufw allow 80/tcp && ufw allow 443/tcp && ufw --force enable
 From your PC: `bash scripts/deploy.sh`. Then [restore a backup](#restoring-a-backup) of `data/` and `uploads/`,
 or create a fresh login with [set-admin](#5-reset-the-dashboard-password). Finally, run `systemctl enable --now mrcars`.
 Point the DNS A records at the new IP, then run `bash scripts/setup-domain.sh` for the domain and HTTPS.
+
+---
+
+## 10. Google and search
+
+The site already gives search engines what they need: one page per car, `https://mrcarsltd.com/sitemap.xml`,
+`robots.txt`, and structured data. Do these once, by hand:
+
+1. **Google Search Console** (https://search.google.com/search-console): add the property `mrcarsltd.com`
+   as a **Domain** property. Google gives you a TXT record. Add it in Cloudflare DNS, then click Verify.
+   Then go to **Sitemaps** and submit `https://mrcarsltd.com/sitemap.xml`.
+2. **Google Business Profile** (https://business.google.com): create or claim "MRCARS Ltd". Use the same name, address and phone
+   as the website, and set the website to `https://mrcarsltd.com`. This is what puts the showroom on Google Maps,
+   and it matters most for "car for sale Kigali" searches.
+3. **Bing Webmaster Tools** (https://www.bing.com/webmasters): import from Search Console.
+4. Check a car page with Google's **Rich Results Test** (https://search.google.com/test/rich-results).
+
+Tips for staff: give each car a full name (brand + model, for example "Chery iCar 03T", not "Icar03T"),
+write a short description, and add several clear photos. These go straight into Google results and link previews.

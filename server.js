@@ -3,6 +3,7 @@ const multer = require('multer');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const seo = require('./seo');
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'db.json');
@@ -167,17 +168,38 @@ const app = express();
 // Behind nginx: read the real visitor IP from X-Forwarded-For (used by the login limit).
 if (process.env.TRUST_PROXY) app.set('trust proxy', 'loopback');
 app.use(express.json());
+
+// Only cars that are published, in stock and have at least one photo
+function catalogue() {
+  const db = loadDb();
+  return { settings: db.settings, cars: db.cars.filter((c) => c.published && c.quantity > 0 && c.images?.length > 0) };
+}
+
+// Public pages, rendered with titles, descriptions and structured data for search engines
+const sendPage = (res, html, status = 200) => res.status(status).set('Cache-Control', 'no-cache').type('html').send(html);
+app.get(['/', '/index.html'], (req, res) => {
+  if (req.path === '/index.html') return res.redirect(301, '/');
+  sendPage(res, seo.renderPage(catalogue()));
+});
+app.get('/cars/:slug', (req, res) => {
+  const cat = catalogue();
+  const car = seo.findCarByPath(cat.cars, req.params.slug);
+  if (!car) return sendPage(res, seo.renderPage(cat, null, { notFound: true }), 404);
+  if (req.path !== seo.carPath(car)) return res.redirect(301, seo.carPath(car)); // name changed: keep one address
+  sendPage(res, seo.renderPage(cat, car));
+});
+app.get('/sitemap.xml', (req, res) => res.type('application/xml').set('Cache-Control', 'no-cache').send(seo.sitemap(catalogue())));
+app.get('/robots.txt', (req, res) => res.type('text/plain').send(seo.robots()));
+
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/brand', express.static(path.join(__dirname, 'public', 'brand'), { maxAge: '7d' }));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+app.use('/api', (req, res, next) => { res.set('X-Robots-Tag', 'noindex'); next(); });
 
 // Public API
 app.get('/api/catalogue', (req, res) => {
-  const db = loadDb();
-  res.json({
-    settings: db.settings,
-    // Only cars that are published, in stock and have at least one photo
-    cars: db.cars.filter((c) => c.published && c.quantity > 0 && c.images?.length > 0),
-  });
+  const cat = catalogue();
+  res.json({ settings: cat.settings, cars: cat.cars.map((c) => ({ ...c, url: seo.carPath(c) })) });
 });
 
 // Auth
@@ -295,7 +317,7 @@ app.put('/api/admin/settings', requireAdmin, (req, res) => {
   res.json(db.settings);
 });
 
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+app.get('/admin', (req, res) => res.set('X-Robots-Tag', 'noindex').sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 app.use((err, req, res, next) => {
   console.error(err);

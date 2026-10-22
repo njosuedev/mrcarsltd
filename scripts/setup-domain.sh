@@ -18,6 +18,12 @@ cp "$SITE" "/root/mrcars.nginx.bak-$(date +%F-%H%M)"
 cat > /etc/nginx/snippets/mrcars-app.conf <<'EOF'
 client_max_body_size 100m;
 server_tokens off;
+# Compress text files (faster pages, better page-speed scores)
+gzip on;
+gzip_vary on;
+gzip_proxied any;
+gzip_min_length 512;
+gzip_types text/css application/javascript application/json application/xml text/plain image/svg+xml;
 location / {
     proxy_pass http://127.0.0.1:3000;
     proxy_http_version 1.1;
@@ -45,7 +51,7 @@ server {
     listen [::]:80;
     server_name $DOMAINS;
     location /.well-known/acme-challenge/ { root /var/www/html; }
-    location / { return 301 https://\$host\$request_uri; }
+    location / { return 301 https://mrcarsltd.com\$request_uri; }
 }
 server {
     listen 80 default_server;
@@ -62,17 +68,27 @@ if [ ! -d "$CERT" ]; then
   certbot certonly --nginx -d mrcarsltd.com -d www.mrcarsltd.com -m "$EMAIL" --agree-tos -n
 fi
 
-# Final config: HTTPS site + HTTP redirect + plain-IP access
+# Final config: HTTPS site, www -> main address, HTTP redirect, plain-IP access.
+# One main address (no www) so search engines don't see the site twice.
 { cat <<EOF
 server {
     listen 443 ssl;
     listen [::]:443 ssl ipv6only=on;
-    server_name $DOMAINS;
+    server_name mrcarsltd.com;
     ssl_certificate $CERT/fullchain.pem;
     ssl_certificate_key $CERT/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
     include /etc/nginx/snippets/mrcars-app.conf;
+}
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name www.mrcarsltd.com;
+    ssl_certificate $CERT/fullchain.pem;
+    ssl_certificate_key $CERT/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    return 301 https://mrcarsltd.com\$request_uri;
 }
 EOF
   write_http; } > "$SITE"

@@ -152,9 +152,9 @@ address { font-style: normal; }
 .card-body { display: flex; flex-direction: column; flex: 1; padding: 14px; }
 .card-sub { margin: 0; font-size: 12.5px; font-weight: 500; color: var(--muted); }
 .card-title { margin: 1px 0 0; font-family: var(--font-display); font-size: 22px; font-weight: 600; line-height: 1.1; color: var(--ink); }
-.card-title button { all: unset; cursor: pointer; }
-.card:hover .card-title button, .card-title button:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.card-title button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-title button, .card-title a { all: unset; cursor: pointer; }
+.card:hover .card-title button, .card-title button:hover, .card:hover .card-title a, .card-title a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.card-title button:focus-visible, .card-title a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .card-specs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--text); }
 .card-specs li { display: inline-flex; align-items: center; gap: 6px; }
 .card-specs li + li::before { content: ""; width: 3px; height: 3px; margin: 0 8px; border-radius: 50%; background: #c2c7cf; }
@@ -385,3 +385,6 @@ address { font-style: normal; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Plain car list sent by the server for search engines; replaced by the grid when the page loads */
+.seo-list { grid-column: 1 / -1; margin: 0; padding-left: 20px; line-height: 1.8; }

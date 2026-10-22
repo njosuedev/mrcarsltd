@@ -18,7 +18,8 @@ the showroom on WhatsApp or by phone. Staff post and manage cars from a private 
 **Public website (`/`)**
 - A grid of cars that are in stock, with filters by body type and New/Used, search, and sorting.
 - A details window for each car, with a photo gallery, specs, price, and an "Ask about this car" button that opens WhatsApp with the car's name and link already filled in.
-- Each car has a link you can share (`/#car-<id>`).
+- Each car has its own page and link (`/cars/2025-toyota-rav4-white-1a2b3c4d`), with its photo in WhatsApp and Facebook previews.
+- Built for search engines: page titles and descriptions, Google structured data for the business and each car, `sitemap.xml`, `robots.txt`.
 - Shows only cars that are **published**, **in stock**, and **have at least one photo**.
 - Works on phones.
 
@@ -47,6 +48,7 @@ npm start
 ```
 mrcarsltd/
 ├── server.js            # Express server: API, sign-in, photo uploads, storage
+├── seo.js               # Server-rendered pages for search engines, sitemap, robots.txt
 ├── package.json
 ├── scripts/
 │   ├── set-admin.js     # create or reset the dashboard login

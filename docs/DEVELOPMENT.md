@@ -30,10 +30,11 @@ There is no auto-reload. Restart `npm start` after editing `server.js`. For chan
 | File | Responsibility |
 |---|---|
 | `server.js` | Everything server-side: storage helpers, sessions, login limit, upload handling, all routes |
+| `seo.js` | Builds the public pages on the server: title, description, link-preview tags, schema.org data (AutoDealer, Car, Offer), the plain car list, the inline catalogue, `sitemap.xml` and `robots.txt`. Car addresses are `/cars/<year-name-colour>-<first 8 chars of id>` (`carPath()`) |
 | `scripts/set-admin.js` | Writes `data/admin.json` (email + scrypt salt/hash) |
 | `scripts/deploy.sh` | Sends the code to the VPS with tar over ssh, runs `npm ci`, restarts the service |
-| `public/index.html` | Public page markup + SVG icon sprite (`<symbol id="i-…">`) |
-| `public/app.js` | Fetches `/api/catalogue`; renders the map, filter chips, search/sort, cards, and the details window (swipe, keyboard, focus trap); builds WhatsApp links; handles `#car-<id>` deep links |
+| `public/index.html` | Public page template + SVG icon sprite (`<symbol id="i-…">`). `seo.js` fills the `<!--SEO_HEAD-->`, `<!--SEO_INTRO-->`, `<!--SEO_LIST-->` and `<!--CATALOGUE-->` markers |
+| `public/app.js` | Reads the catalogue from the page (falls back to `/api/catalogue`); renders the map, filter chips, search/sort, cards, and the details window (swipe, keyboard, focus trap); builds WhatsApp links; opens a car from its `/cars/…` address (and old `#car-<id>` links) |
 | `public/styles.css` | Design tokens on `:root` and all public styles. **Also loaded by the dashboard** |
 | `public/admin.html` | Dashboard markup: login view, Stock tab, Settings tab, car form drawer, confirm dialog |
 | `public/admin.js` | Dashboard logic: auth, table, KPIs, filters, car form, photo ordering, settings, account |
@@ -131,7 +132,10 @@ Errors return `{ "error": "message" }`.
 
 | Method | Path | Returns |
 |---|---|---|
-| GET | `/api/catalogue` | `{ settings, cars }`, only cars that pass the public visibility rule |
+| GET | `/` | Home page, rendered by `seo.js` |
+| GET | `/cars/:slug` | Page for one car (opens its details). Wrong slug → 301 to the right one; sold or hidden → 404 |
+| GET | `/sitemap.xml`, `/robots.txt` | For search engines |
+| GET | `/api/catalogue` | `{ settings, cars }`, only cars that pass the public visibility rule; each car has a `url` |
 | GET | `/admin` | Dashboard page |
 
 ### Auth
@@ -188,6 +192,8 @@ curl -b jar -F name="Toyota RAV4" -F price=25000000 -F category=SUV \
 | Change upload limits | `limits` in the multer setup (`server.js`) **and** `client_max_body_size` in nginx |
 | Add a body type suggestion | `<datalist id="catList">` in `admin.html` |
 | Change the WhatsApp message | `app.js` (search for `wa.me`) |
+| Change page titles, descriptions or structured data | `renderPage()` and the `*Schema()` functions in `seo.js` |
+| Change the site address used in links | `SITE_URL` env var (default `https://mrcarsltd.com`) |
 | Change colours or fonts | `:root` tokens in `styles.css`, plus the Google Fonts `<link>` in both HTML files |
 | Replace the logo | Files in `public/brand/`. Keep the same names and roughly the same shapes |
 
