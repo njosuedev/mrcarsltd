@@ -5,11 +5,11 @@ the showroom on WhatsApp or by phone. Staff post and manage cars from a private 
 
 | | |
 |---|---|
-| **Live site** | http://102.202.208.195 |
-| **Dashboard** | http://102.202.208.195/admin |
+| **Live site** | https://mrcarsltd.com (also http://102.202.208.195) |
+| **Dashboard** | https://mrcarsltd.com/admin |
 | **Phone / WhatsApp** | +250 787 615 702 |
 | **Stack** | Node.js 22 · Express 4 · Multer · plain HTML/CSS/JS · JSON file storage |
-| **Hosting** | Ubuntu 24.04 VPS · nginx · systemd |
+| **Hosting** | Ubuntu 24.04 VPS · nginx · systemd · Let's Encrypt · DNS on Cloudflare |
 
 ---
 

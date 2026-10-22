@@ -9,6 +9,7 @@ in **Git Bash** unless a step says "on the server".
 
 | | |
 |---|---|
+| Domain | `mrcarsltd.com` and `www.mrcarsltd.com` (DNS on Cloudflare) |
 | Provider IP (public) | `102.202.208.195` |
 | Private IP | `172.27.13.20` (not used by the site) |
 | SSH | `ssh -p 222 root@102.202.208.195` (key login from the developer PC) |
@@ -17,13 +18,14 @@ in **Git Bash** unless a step says "on the server".
 | App folder | `/opt/mrcars` |
 | Runs as | system user `mrcars` (no login shell) |
 | Service | `mrcars` (systemd): `/etc/systemd/system/mrcars.service` |
-| Web server | nginx: `/etc/nginx/sites-available/mrcars` |
+| Web server | nginx: `/etc/nginx/sites-available/mrcars` + `/etc/nginx/snippets/mrcars-app.conf` |
+| HTTPS | Let's Encrypt via certbot, renews itself (`certbot.timer`) |
 | Firewall | ufw: allows 222 (SSH), 80, 443, plus provider rules for 22/tcp and 60124/udp |
 
 ### How a request flows
 
 ```
-Browser ──► nginx :80 ──► node server.js on 127.0.0.1:3000 ──► data/db.json, uploads/
+Browser ──► nginx :443 (HTTPS) ──► node server.js on 127.0.0.1:3000 ──► data/db.json, uploads/
 ```
 
 - nginx is the only thing open to the internet. Port 3000 only listens locally.
@@ -200,25 +202,32 @@ so this should be rare.
   Test a new SSH session **before** closing the current one.
 - **Adding a maintainer's key:** append their public key (`id_ed25519.pub`) to `/root/.ssh/authorized_keys`.
 - **Login limit.** 5 failed sign-ins per IP, then a 15 minute wait. This depends on `TRUST_PROXY=1` in the service file.
-- **HTTP only for now.** Until HTTPS is set up, the dashboard password is sent unencrypted. Set up a domain and HTTPS (next section).
-  When you do, add `Secure` to the session cookie in `server.js`.
+- **Use the HTTPS address.** On https://mrcarsltd.com the password is encrypted and the session cookie is marked `Secure`.
+  The bare IP (http://102.202.208.195) still works but is unencrypted, so don't sign in to the dashboard through it.
 
 ---
 
-## 8. Adding a domain and HTTPS
+## 8. Domain and HTTPS
 
-1. Buy a domain (for example `mrcars.rw`). In its DNS, add **A records** for `@` and `www` pointing to `102.202.208.195`.
-2. Wait until `nslookup mrcars.rw` shows that IP.
-3. On the server:
-   ```bash
-   sed -i 's/server_name _;/server_name mrcars.rw www.mrcars.rw;/' /etc/nginx/sites-available/mrcars
-   nginx -t && systemctl reload nginx
-   apt install -y certbot python3-certbot-nginx
-   certbot --nginx -d mrcars.rw -d www.mrcars.rw --redirect -m you@example.com --agree-tos -n
-   ```
-   Certbot renews the certificate automatically. Check with `certbot renew --dry-run`.
-4. In `server.js`, add `; Secure` to the `Set-Cookie` line in `/api/login`, then deploy.
-5. Update the site address in `README.md` and `scripts/deploy.sh` if you want, since the IP still works for SSH.
+**How it is set up**
+- DNS is on Cloudflare (nameservers `coby` / `lucy.ns.cloudflare.com`). Two `A` records, `@` and `www`, point to `102.202.208.195`.
+- nginx has three server blocks:
+  - HTTPS on 443 for `mrcarsltd.com` / `www`, which serves the app.
+  - HTTP on 80 for the domain, which redirects to HTTPS (except Let's Encrypt challenges).
+  - HTTP on 80 for anything else (the bare IP), which serves the app.
+- The app settings shared by both are in `/etc/nginx/snippets/mrcars-app.conf`.
+- `/etc/nginx/conf.d/cloudflare-realip.conf` takes the visitor's real IP from `CF-Connecting-IP` if the Cloudflare proxy is turned on.
+
+**Certificate**
+- It renews on its own. Test the renewal with `certbot renew --dry-run`, and see the expiry date with `certbot certificates`.
+
+**Turning on the Cloudflare proxy (orange cloud)** is optional:
+- Set **SSL/TLS → Overview → Full (strict)** first. "Flexible" causes an endless redirect loop.
+- Leave Cloudflare's "Always Use HTTPS" off, because nginx already redirects.
+- Cloudflare's IP ranges change rarely. To refresh them, run `bash scripts/setup-domain.sh` again.
+
+**Setting it up again** (new server, or a new domain), after the DNS A records point to the server:
+`bash scripts/setup-domain.sh`. The script is safe to run more than once.
 
 ---
 
@@ -261,7 +270,7 @@ ReadWritePaths=/opt/mrcars/data /opt/mrcars/uploads
 WantedBy=multi-user.target
 ```
 
-Create `/etc/nginx/sites-available/mrcars`:
+Create `/etc/nginx/sites-available/mrcars` (HTTP only for now. `scripts/setup-domain.sh` replaces it with the HTTPS version later):
 
 ```nginx
 server {
@@ -295,3 +304,4 @@ ufw allow 222/tcp && ufw allow 80/tcp && ufw allow 443/tcp && ufw --force enable
 
 From your PC: `bash scripts/deploy.sh`. Then [restore a backup](#restoring-a-backup) of `data/` and `uploads/`,
 or create a fresh login with [set-admin](#5-reset-the-dashboard-password). Finally, run `systemctl enable --now mrcars`.
+Point the DNS A records at the new IP, then run `bash scripts/setup-domain.sh` for the domain and HTTPS.

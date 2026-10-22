@@ -118,7 +118,7 @@ Files are deleted when a photo is removed from a car, or when the car is deleted
 - **Changing the password** clears every other session.
 - **CSRF.** Covered by `SameSite=Strict`. All changes require the cookie.
 - **Uploads.** Only image types are accepted (JPEG, PNG, WebP, GIF), with server-generated filenames, max 10 MB each, 20 per request. The dashboard resizes photos to 1920 px (JPEG, quality 0.85) in the browser before upload (`shrink()` in `admin.js`).
-- **To do once HTTPS exists:** add `Secure` to the cookie.
+- The cookie gets `Secure` when the request came over HTTPS (`req.secure`, which reads nginx's `X-Forwarded-Proto`).
 
 ---
 

@@ -10,4 +10,4 @@ tar --exclude=.git --exclude=node_modules --exclude=data --exclude=uploads -czf 
       && npm ci --omit=dev --no-audit --no-fund >/dev/null \
       && chown -R mrcars:mrcars /opt/mrcars && systemctl restart mrcars \
       && sleep 1 && systemctl is-active mrcars'
-echo "Deployed: http://102.202.208.195"
+echo "Deployed: https://mrcarsltd.com"

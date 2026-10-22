@@ -2,7 +2,7 @@
 
 This guide is for showroom staff. You don't need any technical knowledge.
 
-**Dashboard address:** http://102.202.208.195/admin
+**Dashboard address:** https://mrcarsltd.com/admin
 You can also use the **Sign in** button at the top of the website, or the **Staff sign in** link at the bottom.
 
 ---
